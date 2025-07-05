@@ -1,0 +1,32 @@
+name: push_image_to_registry
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: ["watcher.py"]
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+
+  build-image-push:
+    uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
+    with:
+      APPLICATION: ${{ vars.APPLICATION }}
+      BUILD_ARGS: |
+        REGISTRY=${{ vars.REGISTRY_PRIVATE_PULL }}
+      PUSH_TO_PUBLIC: false
+      PUSH_TO_PRIVATE: true
+      OWNER: ${{ vars.OWNER }}
+      REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
+      REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
+      REGISTRY_PUBLIC: ${{ vars.REGISTRY_PUBLIC }}
+      VERSION: ${{ vars.JFWATCHER_VERSION }}
+    secrets:
+      REGISTRY_PRIVATE_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
+      REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
+      REGISTRY_PUBLIC_USER: ${{ github.actor }}
+      REGISTRY_PUBLIC_PASSWD: ${{ secrets.PAT_PACKAGES }}
